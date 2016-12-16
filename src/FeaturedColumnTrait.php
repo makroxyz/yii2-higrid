@@ -36,7 +36,7 @@ trait FeaturedColumnTrait
      */
     public $popoverOptions = [
         'placement' => 'bottom',
-        'selector' => 'a',
+        'selector'  => 'a',
     ];
 
     /**
@@ -64,12 +64,8 @@ trait FeaturedColumnTrait
     public function registerClientScript()
     {
         $view = Yii::$app->getView();
-        $ops = Json::encode($this->popoverOptions);
-        if (property_exists($this, 'grid')) {
-            $view->registerJs("$('#{$this->grid->id} thead th[data-attribute=\"{$this->attribute}\"]').popover($ops);", \yii\web\View::POS_READY);
-        } else {
-            $view->registerJs("$('table[role=\"grid\"] thead th[data-attribute=\"{$this->attribute}\"]').popover($ops);", \yii\web\View::POS_READY);
-        }
+        $ops  = Json::encode($this->popoverOptions);
+        $view->registerJs("$('#{$this->grid->id} thead th[data-toggle=\"popover\"]').popover($ops);", \yii\web\View::POS_READY);
     }
 
     /**
@@ -79,18 +75,15 @@ trait FeaturedColumnTrait
     {
         /// XXX better change yii
         if ($this->hasProperty('attribute')) {
-            $save = $this->attribute;
+            $save            = $this->attribute;
             $this->attribute = $this->getSortAttribute();
         }
 
         if ($this->popover) {
             $this->headerOptions = ArrayHelper::merge($this->headerOptions, [
-                'data' => [
-                    'toggle' => 'popover',
-                    'trigger' => 'hover',
-                    'content' => $this->popover,
-                    'attribute' => $this->attribute,
-                ]
+                'data-toggle'  => 'popover',
+                'data-trigger' => 'hover',
+                'data-content' => $this->popover,
             ]);
         }
 
@@ -143,19 +136,19 @@ trait FeaturedColumnTrait
      * Example determination of closure: `function ($dataColumn, $model, $attribute) { ... }`
      * - If you don't want a filter for this data column, set this value to be false.
      */
-    public $filter;
+//    public $filter;
 
     /**
      * {@inheritdoc}
      */
     protected function renderFilterCellContent()
     {
-        if ($this->filter instanceof Closure) {
+        if ($this->hasProperty('filter') && $this->filter instanceof Closure) {
             return call_user_func($this->filter, $this, $this->grid->filterModel, $this->attribute);
         }
         /// XXX better change yii
         if ($this->hasProperty('attribute')) {
-            $save = $this->attribute;
+            $save            = $this->attribute;
             $this->attribute = $this->getFilterAttribute();
         }
         $out = parent::renderFilterCellContent();
